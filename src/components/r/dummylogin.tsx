@@ -23,16 +23,16 @@ export default function DummyLogin() {
 
   const dummyData = {
     user: {
-      email: 'viyam69234@acedby.com',
-      password: 'viyam69234@acedby.com'
+      email: 'hehiyo8176@iotrama.com',
+      password: 'hehiyo8176@iotrama.com'
     },
     hospital: {
-      email: 'wamah55443@linacit.com',
-      password: 'wamah55443@linacit.com'
+      email: 'dalara9746@chaublog.com',
+      password: 'dalara9746@chaublog.com'
     },
     responder: {
-      email: 'nadigax757@endelite.com',
-      password: 'nadigax757@endelite.com'
+      email: 'pofar66571@iotrama.com',
+      password: 'pofar66571@iotrama.com'
     }
   };
 
