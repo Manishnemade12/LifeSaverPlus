@@ -187,27 +187,19 @@ const HospitalDashboard: React.FC = () => {
     // eslint-disable-next-line
   }, []);
 
-  // Fetch and subscribe to SOS requests assigned to this hospital
+  // Fetch and subscribe to ALL sos_requests (not filtered by hospital)
   useEffect(() => {
-    if (!hospitalId) return;
     setLoading(true);
 
-    // Initial fetch
     const fetchSOSRequests = async () => {
       const { data, error } = await supabase
         .from('sos_requests')
         .select('*')
-        .eq('assigned_hospital_id', hospitalId)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        setSosRequests(data.filter((req: SOSRequest) => req.status === 'active' || req.status === 'pending'));
-        setHistoryRequests(
-          data.filter(
-            (req: SOSRequest) =>
-              req.status === 'resolved' || req.status === 'dismissed'
-          )
-        );
+        setSosRequests(data); // Show all requests regardless of status
+        setHistoryRequests(data); // Show all in history as well, or adjust as needed
       }
       setLoading(false);
     };
@@ -220,7 +212,7 @@ const HospitalDashboard: React.FC = () => {
       subscriptionRef.current = null;
     }
 
-    // Real-time subscription
+    // Real-time subscription (listen to all sos_requests)
     const channel = supabase
       .channel('realtime:sos_requests')
       .on(
@@ -229,25 +221,18 @@ const HospitalDashboard: React.FC = () => {
           event: '*',
           schema: 'public',
           table: 'sos_requests',
-          filter: `assigned_hospital_id=eq.${hospitalId}`,
         },
         (payload) => {
           setSosRequests((prev) => {
             let updated = prev;
             if (payload.eventType === 'INSERT') {
-              if (payload.new.status === 'active' || payload.new.status === 'pending') {
-                if (!prev.some((req) => req.id === payload.new.id)) {
-                  updated = [payload.new as SOSRequest, ...prev];
-                }
+              if (!prev.some((req) => req.id === payload.new.id)) {
+                updated = [payload.new as SOSRequest, ...prev];
               }
             } else if (payload.eventType === 'UPDATE') {
-              if (payload.new.status !== 'active' && payload.new.status !== 'pending') {
-                updated = prev.filter((req) => req.id !== payload.new.id);
-              } else {
-                updated = prev.map((req) =>
-                  req.id === payload.new.id ? (payload.new as SOSRequest) : req
-                );
-              }
+              updated = prev.map((req) =>
+                req.id === payload.new.id ? (payload.new as SOSRequest) : req
+              );
             } else if (payload.eventType === 'DELETE') {
               updated = prev.filter((req) => req.id !== payload.old.id);
             }
@@ -256,25 +241,13 @@ const HospitalDashboard: React.FC = () => {
           setHistoryRequests((prev) => {
             let updated = prev;
             if (payload.eventType === 'INSERT') {
-              if (
-                payload.new.status === 'resolved' ||
-                payload.new.status === 'dismissed'
-              ) {
-                if (!prev.some((req) => req.id === payload.new.id)) {
-                  updated = [payload.new as SOSRequest, ...prev];
-                }
+              if (!prev.some((req) => req.id === payload.new.id)) {
+                updated = [payload.new as SOSRequest, ...prev];
               }
             } else if (payload.eventType === 'UPDATE') {
-              if (
-                payload.new.status === 'resolved' ||
-                payload.new.status === 'dismissed'
-              ) {
-                if (!prev.some((req) => req.id === payload.new.id)) {
-                  updated = [payload.new as SOSRequest, ...prev];
-                }
-              } else {
-                updated = prev.filter((req) => req.id !== payload.new.id);
-              }
+              updated = prev.map((req) =>
+                req.id === payload.new.id ? (payload.new as SOSRequest) : req
+              );
             } else if (payload.eventType === 'DELETE') {
               updated = prev.filter((req) => req.id !== payload.old.id);
             }
@@ -292,7 +265,7 @@ const HospitalDashboard: React.FC = () => {
         subscriptionRef.current = null;
       }
     };
-  }, [hospitalId, toast]);
+  }, [toast]);
 
   const formatTime = (timestamp: string | null) => {
     if (!timestamp) return "";

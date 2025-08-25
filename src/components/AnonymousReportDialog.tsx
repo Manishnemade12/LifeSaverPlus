@@ -159,7 +159,7 @@ export const AnonymousReportDialog = ({ onSubmit, trigger }: AnonymousReportDial
               onClick={handleSubmit}
               disabled={!type || !description}
             >
-              Submit Report
+              Submit Reported
             </Button>
           </div>
         </div>
@@ -167,3 +167,4 @@ export const AnonymousReportDialog = ({ onSubmit, trigger }: AnonymousReportDial
     </Dialog>
   );
 };
+

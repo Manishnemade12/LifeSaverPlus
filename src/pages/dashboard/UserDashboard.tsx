@@ -250,6 +250,7 @@ const { sendHospitalSOS, loading } = useHospitalSOS();
             <TabsTrigger value="contacts">Contacts</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
+           
           </TabsList>
 
           
@@ -375,7 +376,7 @@ const { sendHospitalSOS, loading } = useHospitalSOS();
           <TabsContent value="contacts" className="space-y-6">
            <EmergencyContacts />
           </TabsContent>
-
+       
           <TabsContent value="history" className="space-y-6">
             <Card>
               <CardHeader>
